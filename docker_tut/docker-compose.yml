@@ -1,0 +1,50 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    
+    restart: always
+    environment:
+        - POSTGRES_USER=docker
+        - POSTGRES_PASSWORD=docker
+    #ports:
+        #- '5432:5432'
+    networks:
+        - 'bridge'
+    volumes: 
+        - db:/var/lib/postgresql/data
+        - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+        
+  nginx:
+    image: nginx
+    
+    ports:
+        - '80:80'
+    networks:
+        - 'bridge'
+    volumes:
+        - ./nginx/conf.d/:/etc/nginx/conf.d/
+        
+  task_1:
+    build:
+      context: ../test_task_1/
+      dockerfile: Dockerfile
+    
+    networks:
+        - 'bridge'   
+  
+  task_2:
+    build:
+      context: ../test_task_2/
+      dockerfile: Dockerfile
+    
+    networks:
+        - 'bridge'
+    
+networks:
+  bridge:
+    driver: bridge
+        
+volumes:
+  db:
+    driver: local
