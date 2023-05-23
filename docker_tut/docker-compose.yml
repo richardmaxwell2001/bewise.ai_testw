@@ -23,7 +23,7 @@ services:
     networks:
         - 'bridge'
     volumes:
-        - ./nginx/conf.d/:/etc/nginx/conf.d/
+        - ./nginx.conf:/etc/nginx/conf.d/default.conf
         
   task_1:
     build:

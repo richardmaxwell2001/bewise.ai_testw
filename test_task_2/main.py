@@ -1,39 +1,40 @@
-from flask import Flask, request
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker
-
+from sqlalchemy.ext.declarative import declarative_base
+from flask import Flask, request
+import uuid
 
 username: str = "task_2"
 password: str = "a41a9ASc363d4G6Q1027F2a50eH867"
 
+
 app = Flask(__name__)
 
-connection_string: str = f'postgresql://{username}:{password}@db:5432/task_2_database'
+connection_string = f'postgresql://{username}:{password}@db:5432/task_2_database'
 engine = create_engine(connection_string)
 Session = sessionmaker(bind=engine)
 session = Session()
 
-class User(db.Model):
+Base = declarative_base()
+
+class User(Base):
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True)
-    email = db.Column(db.String(120), unique=True)
+    user_id = Column(Integer, primary_key=True)
+    username = Column(String(255), nullable=False)
+    access_token = Column(String, nullable=False, unique=True, default=str(uuid.uuid4()))
 
-    def __init__(self, username, email):
-        self.username = username
-        self.email = email
-
-@app.route('/create_user', methods=['POST'])
+@app.route('/task_2', methods=['POST'])
 def create_user():
-    username = request.form['username']
-    email = request.form['email']
+    data = request.get_json()
+    username = data.get('username')
 
-    new_user = User(username, email)
+    new_user = User(username=username)
     session.add(new_user)
     session.commit()
 
     return 'User created successfully!'
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host="0.0.0.0", port=5000)
+
