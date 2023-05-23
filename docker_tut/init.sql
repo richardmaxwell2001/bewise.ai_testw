@@ -24,7 +24,7 @@ CREATE TABLE public.questions (
 
 --права на таблицу
 GRANT SELECT, INSERT ON TABLE questions TO task_1;
-GRANT USAGE, SELECT ON SEQUENCE questions_id_seq TO task_1;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public to task_1;
 
 
 CREATE USER task_2;
@@ -64,3 +64,4 @@ CREATE TABLE public.audioFiles (
 
 --права на таблицы
 GRANT SELECT, INSERT ON TABLE users, audioRecords, audioFiles TO task_2;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public to task_2;

@@ -22,9 +22,9 @@ class User(Base):
 
     user_id = Column(Integer, primary_key=True)
     username = Column(String(255), nullable=False)
-    access_token = Column(String, nullable=False, unique=True, default=str(uuid.uuid4()))
+    access_token = Column(String, nullable=False, unique=True, default=lambda: str(uuid.uuid4()))
 
-@app.route('/task_2', methods=['POST'])
+@app.route('/task_2/new_user', methods=['POST'])
 def create_user():
     data = request.get_json()
     username = data.get('username')
@@ -33,7 +33,7 @@ def create_user():
     session.add(new_user)
     session.commit()
 
-    return 'User created successfully!'
+    return 'User created successfully!\n'
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)
