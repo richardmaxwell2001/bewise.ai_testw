@@ -52,9 +52,7 @@ CREATE TABLE public.audioRecords (
     record_id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES public.users (user_id),
     record_uuid UUID NOT NULL,
-    record_url VARCHAR(255) NOT NULL
 );
-
 
 -- Создание таблицы "audioFiles"
 CREATE TABLE public.audioFiles (

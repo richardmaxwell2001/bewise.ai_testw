@@ -7,4 +7,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"questions_num": 5}' http:
 task2:
     new_user: curl -X POST -H "Content-Type: application/json" -d '{"username":"JohnDoe"}' http://localhost/task_2/new_user
     
+    upload_audio: curl -X POST -H "Authorization: <access_token>" -H "user_id: 1" -F "audio=@./Untitled.mp3" http://localhost/task_2/upload_audio
 
+    
+    
