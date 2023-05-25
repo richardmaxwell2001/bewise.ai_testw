@@ -41,13 +41,13 @@ services:
     networks:
         - 'bridge'
         
-  #qa:
-    #build:
-      #context: ../qa/
-      #dockerfile: Dockerfile
+  qa:
+    build:
+      context: ../qa/
+      dockerfile: Dockerfile
     
-    #networks:
-        #- 'bridge'      
+    networks:
+        - 'bridge'      
     
 networks:
   bridge:

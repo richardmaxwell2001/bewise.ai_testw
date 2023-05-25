@@ -1,9 +1,11 @@
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, LargeBinary
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file, make_response
 import uuid
 import base64
+from io import BytesIO
+from pydub import AudioSegment
 
 username: str = "task_2"
 password: str = "a41a9ASc363d4G6Q1027F2a50eH867"
@@ -43,6 +45,7 @@ class AudioFile(Base):
 
 @app.route('/task_2/new_user', methods=['POST'])
 def create_user():
+    
     data = request.get_json()
     username = data.get('username')
     
@@ -61,11 +64,13 @@ def create_user():
 
 @app.route('/task_2/upload_audio', methods=['POST'])
 def upload_audio():
-    json = request.get_json()
     
-    access_token = json.get('Access_token')
-    user_id = json.get('User_id')
+    access_token = request.form.get('Access_token')
+    user_id = request.form.get('User_id')
     
+    print(access_token)
+    print(user_id)
+
     if not access_token:
         return jsonify({'error': 'Missing access_token argument!'})        
 
@@ -75,30 +80,33 @@ def upload_audio():
     if not session.query(User).filter_by(access_token=access_token, user_id=user_id).first():
         return jsonify({'error': 'Unauthorized access'})
 
-    file_data = json.get('data')
+    file_data = request.files.get('audio')
 
     if not file_data:
         return jsonify({'error': 'Missing audio file'})
 
-    file_data_bin = base64.b64decode(file_data)
+    audio = AudioSegment.from_file(file_data, format='wav')
+    
+    mp3_data = BytesIO()
+    audio.export(mp3_data, format='mp3')
+    mp3_data.seek(0)
+    mp3_bytes = mp3_data.read()
 
     new_record = AudioRecord(user_id=user_id)
     session.add(new_record)
     session.commit()
     
-    new_file = AudioFile(record_id=new_record.record_id,file_data=file_data_bin)
+    new_file = AudioFile(record_id=new_record.record_id,file_data=mp3_bytes)
     session.add(new_file)
     session.commit()
 
-    return jsonify({'URL': f"http://localhost/task_2/download?user_id={user_id}&rec_id={new_record.record_id}.mp3"})
+    return jsonify({'URL': f"http://localhost/task_2/download?user_id={user_id}&record_id={new_record.record_id}"})
 
 
-@app.route('/download', methods=['GET'])
+@app.route('/task_2/download', methods=['GET'])
 def download_file():
-    record_id = request.args.get('id')
-    user_id = request.args.get('user')
-
-    print(f"download {record_id} by {user_id}")
+    record_id = request.args.get('record_id')
+    user_id = request.args.get('user_id')
 
 
     if not record_id:
@@ -120,14 +128,12 @@ def download_file():
     file_data = audio_file.file_data
     filename = f"{record.record_uuid}.mp3"
 
-    return send_file(BytesIO(file_data), attachment_filename=filename, as_attachment=True)
+    response = make_response(send_file(BytesIO(file_data), mimetype='audio/mpeg'))
+    response.headers['Content-Disposition'] = 'attachment; filename=' + filename
 
-app.add_url_rule('/download', 'download_file', download_file, methods=['GET'])
-
-
-
-
+    return response
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+    app.add_url_rule('/download', 'download_file', download_file, methods=['GET'])
+    app.run(host="0.0.0.0", port=5000, use_reloader=False)
