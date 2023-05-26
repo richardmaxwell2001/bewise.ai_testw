@@ -67,9 +67,6 @@ def upload_audio():
     
     access_token = request.form.get('Access_token')
     user_id = request.form.get('User_id')
-    
-    print(access_token)
-    print(user_id)
 
     if not access_token:
         return jsonify({'error': 'Missing access_token argument!'})        
@@ -81,6 +78,13 @@ def upload_audio():
         return jsonify({'error': 'Unauthorized access'})
 
     file_data = request.files.get('audio')
+    
+    # Получить расширение файла
+    file_extension = file_data.filename.rsplit('.', 1)[1].lower()
+
+    # Проверка расширения файла
+    if file_extension != 'wav':
+        return jsonify({'error': 'Invalid audio format. Only WAV files are supported.'})    
 
     if not file_data:
         return jsonify({'error': 'Missing audio file'})

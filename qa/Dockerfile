@@ -4,4 +4,4 @@ EXPOSE 80
 
 COPY . .
 
-CMD [ "./rec_aplode_audio.sh" ]
+CMD [ "./rec_aplode_audio.sh","./pop_question.sh" ]

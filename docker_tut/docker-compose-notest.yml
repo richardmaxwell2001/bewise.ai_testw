@@ -40,14 +40,6 @@ services:
     
     networks:
         - 'bridge'
-        
-  qa:
-    build:
-      context: ../qa/
-      dockerfile: Dockerfile
-    
-    networks:
-        - 'bridge'      
     
 networks:
   bridge:
